@@ -1,10 +1,10 @@
-abraham 175 male
-sarah 127 female
-isaac 180 male
-rebecca 133 female
-jacob 147 male
-leah - female
-rachel 36 female
-zilpah - female
-bilhah - female
+abraham 175 male sarah
+sarah 127 female abraham
+isaac 180 male rebecca
+rebecca 133 female isaac
+jacob 147 male leah,rachel,zilpah,bilhah
+leah - female jacob
+rachel 36 female jacob
+zilpah - female jacob
+bilhah - female jacob
 

@@ -33,7 +33,7 @@ class Parser
 	end
 
 	def close
-		@file && @file.close && @file = nil
+		@file && @file.close
 	end
 
 	private
@@ -57,6 +57,7 @@ default = proc do
 		value == "-" ? -1 : value
 	end
 	field :gender
+	field :spouse
 end
 
 
@@ -65,6 +66,8 @@ parser = Parser.new &default
 # lazy parse of log
 e = parser.lazy_parse "/Users/chen/projects/talks/fp/log.log"
 e.select {|x| x[:gender] == "male"}.select { |x| x[:age] > 150 }.to_a
+e.select { |x| x[:gender] == "male" }.select { |x| x[:spouse] =~ /leah/ }.to_a
+e.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }.to_a
 
 # eager parse of log
 parser.parse("log.log") do |h|
