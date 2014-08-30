@@ -9,6 +9,11 @@ names.map &capitalize
 names.map &reverse
 names.map(&reverse).map(&capitalize)
 
+# obviously we do not really need capitalize and reverse procs since
+# we can do this with the String's capitalize and reverse methods:
+names.map(&:capitalize).map(&:reverse)
+# but we define the procs for the purpose of demonstration
+
 # compose a function from two functions
 def comp(f1, f2)
 	proc { |*args| f1.call(f2.call(*args)) }
