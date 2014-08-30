@@ -64,7 +64,7 @@ parser = Parser.new &default
 
 # lazy parse of log
 e = parser.lazy_parse "/Users/chen/projects/talks/fp/log.log"
-e.select {|x| x[:gender] == "female"}.select { |x| x[:age] == -1 }.to_a
+e.select {|x| x[:gender] == "male"}.select { |x| x[:age] > 150 }.to_a
 
 # eager parse of log
 parser.parse("log.log") do |h|
