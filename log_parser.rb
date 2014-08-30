@@ -1,4 +1,5 @@
 class Parser
+	include Enumerable
 
 	attr_reader :fields
 
@@ -21,7 +22,7 @@ class Parser
 		end
 	end
 
-	def lazy_parse(filename)
+	def each(filename)
 		self.close
 
 		@file = File.open filename
@@ -29,11 +30,11 @@ class Parser
 			@file.each do |line|
 				y << parse_line(line)
 			end
-		end.lazy
+		end
 	end
 
 	def close
-		@file && @file.close
+		@file && @file.close || @file = nil
 	end
 
 	private
@@ -65,9 +66,9 @@ parser = Parser.new &default
 
 # lazy parse of log
 e = parser.lazy_parse "/Users/chen/projects/talks/fp/log.log"
-e.select {|x| x[:gender] == "male"}.select { |x| x[:age] > 150 }.to_a
-e.select { |x| x[:gender] == "male" }.select { |x| x[:spouse] =~ /leah/ }.to_a
-e.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }.to_a
+e.lazy.select {|x| x[:gender] == "male"}.select { |x| x[:age] > 150 }.to_a
+e.lazy.select { |x| x[:gender] == "male" }.select { |x| x[:spouse] =~ /leah/ }.to_a
+e.lazy.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }.to_a
 
 # eager parse of log
 parser.parse("log.log") do |h|
