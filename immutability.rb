@@ -4,7 +4,7 @@ class MutableCriteria
 	end
 
 	def where(query)
-		@query = "#{@query} and #{query}"
+		@query.merge! query
 	end
 end
 
@@ -14,6 +14,8 @@ class ImmutableCriteria
 	end
 
 	def where(query)
-		ImmutableCriteria.new "#{@query} and #{query}"
+		ImmutableCriteria.new @query.merge(query)
 	end
 end
+
+# ImmutableCriteria can be chained by definition
