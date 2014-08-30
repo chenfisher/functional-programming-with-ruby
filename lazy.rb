@@ -9,11 +9,11 @@ end
 fib.take(10)
 
 # use 'select' to take the first 10 even fib numbers
-fib.select { |x| x%2 == 0 }.take(10)
+fib.select { |x| x % 2 == 0 }.take(10)
 # only Cbuck Norris can run this (select runs infinitely)
 
 # use lazy enumerator
-fib.lazy.select { |x| x%2 == 0 }.first(10)
+fib.lazy.select { |x| x % 2 == 0 }.first(10)
 
 # implementation of lazy select on enumerator
 # source: http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/19679
@@ -27,4 +27,12 @@ class Enumerator
   end 
 end
 
-fib.lazy_select { |x| x%2 == 0 }.first(10)
+fib.lazy_select { |x| x % 2 == 0 }.first(10)
+
+# another reason to use lazy:
+# source: http://www.sitepoint.com/functional-programming-techniques-with-ruby-part-iii/
+# this iterates twice on range
+(1..100).select { |x| x % 3 == 0 }.select { |x| x % 4 == 0 }
+
+# this iterates only once!
+(1..100).lazy.select { |x| x % 3 == 0 }.select { |x| x % 4 == 0 }
