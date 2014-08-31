@@ -52,7 +52,7 @@ class Parser
 end
 
 # usage
-default = proc do
+patriarchs = proc do
 	field :name
 	field :age do |value|
 		value == "-" ? -1 : value
@@ -62,13 +62,14 @@ default = proc do
 end
 
 
-parser = Parser.new &default
+parser = Parser.new &patriarchs
 
 # lazy parse of log
-e = parser.lazy_parse "/Users/chen/projects/talks/fp/log.log"
-e.lazy.select {|x| x[:gender] == "male"}.select { |x| x[:age] > 150 }.to_a
+e = parser.each "log.log"
+e.lazy.select {|x| x[:gender] == "male"}.select { |x| x[:age].to_i > 150 }.to_a
 e.lazy.select { |x| x[:gender] == "male" }.select { |x| x[:spouse] =~ /leah/ }.to_a
-e.lazy.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }.to_a
+a = e.lazy.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }
+a.next
 
 # eager parse of log
 parser.parse("log.log") do |h|
