@@ -1,3 +1,33 @@
+# A simple, yet powerful log parser
+#
+# Dynamically supports any log format; just define needed format:
+#   Parser.new do
+#     field :datetime
+#     field :url
+#     field :referer do |value|
+#       value == "-" ? "N/A" : value
+#     end
+#   end
+#
+# Parses each line to a structured hash; following the structure above:
+# {datetime: "...", url: "...", referer: "..."}
+#
+# Once you have your parser, you can:
+# Eager parse it:
+# 	parser.parse(filename) do |hash|
+#   	puts hash
+# 	end
+#
+# It implements Enumerable, so you have everything Enumerator offers:
+# (each, select, inject, etc..)
+#
+# AND - it supports a lazy enumerator! so you can do crazy stuff with 
+# a big size log file:
+# 	e = parser.lazy_parse(filename)
+# 	a = e.lazy.select { |x| x[:datetime] > 3.days.ago }.select { |x| x[:referer] = "google.com" }
+# 	a.next # => will return the next matching log line
+# 	a.next # => will return the next matching log line
+# 	a.next ...
 class Parser
 	include Enumerable
 
@@ -32,6 +62,7 @@ class Parser
 			end
 		end
 	end
+	alias :lazy_parse :each
 
 	def close
 		@file && @file.close || @file = nil
@@ -65,7 +96,7 @@ end
 parser = Parser.new &patriarchs
 
 # lazy parse of log
-e = parser.each "log.log"
+e = parser.lazy_parse "log.log"
 e.lazy.select {|x| x[:gender] == "male"}.select { |x| x[:age].to_i > 150 }.to_a
 e.lazy.select { |x| x[:gender] == "male" }.select { |x| x[:spouse] =~ /leah/ }.to_a
 a = e.lazy.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }
