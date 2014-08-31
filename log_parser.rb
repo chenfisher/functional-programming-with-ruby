@@ -44,7 +44,7 @@ class Parser
 	end
 
 	def close
-		@file && @file.close || @file = nil
+		@file.close
 	end
 
 	private
