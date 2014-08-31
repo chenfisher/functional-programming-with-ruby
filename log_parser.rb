@@ -1,7 +1,7 @@
 # A simple, yet powerful log parser
 #
 # Dynamically supports any log format; just define needed format:
-#   Parser.new do
+#   parser = Parser.new filename do
 #     field :datetime
 #     field :url
 #     field :referer do |value|
@@ -12,29 +12,24 @@
 # Parses each line to a structured hash; following the structure above:
 # {datetime: "...", url: "...", referer: "..."}
 #
-# Once you have your parser, you can:
-# Eager parse it:
-# 	parser.parse(filename) do |hash|
-#   	puts hash
-# 	end
-#
 # It implements Enumerable, so you have everything Enumerator offers:
 # (each, select, inject, etc..)
+#   parser.each { |h| puts h }
 #
 # AND - it supports a lazy enumerator! so you can do crazy stuff with 
 # a big size log file:
-# 	e = parser.lazy_parse(filename)
-# 	a = e.lazy.select { |x| x[:datetime] > 3.days.ago }.select { |x| x[:referer] = "google.com" }
-# 	a.next # => will return the next matching log line
-# 	a.next # => will return the next matching log line
-# 	a.next ...
+# 	e = parser.lazy.select { |x| x[:datetime] > 3.days.ago }.select { |x| x[:referer] = "google.com" }
+# 	e.next # => will return the next matching log line
+# 	e.next # => will return the next matching log line
+# 	e.next ...
 class Parser
 	include Enumerable
 
 	attr_reader :fields
 
-	def initialize(&block)
+	def initialize(filename, &block)
 		@fields = []
+		@file = File.open filename
 		self.instance_eval(&block) if block_given?
 	end
 
@@ -42,27 +37,11 @@ class Parser
 		@fields << [name, (block_given? ? block : proc { |value| value })]
 	end
 
-	def parse(filename)
-		raise ArgumentError, "Please provide a block" unless block_given?
-
-		File.open filename do |f|
-			f.each do |line|
-				yield parse_line(line)
-			end
+	def each
+		@file.each do |line|
+			yield parse_line(line)
 		end
 	end
-
-	def each(filename)
-		self.close
-
-		@file = File.open filename
-		Enumerator.new do |y|
-			@file.each do |line|
-				y << parse_line(line)
-			end
-		end
-	end
-	alias :lazy_parse :each
 
 	def close
 		@file && @file.close || @file = nil
@@ -93,16 +72,15 @@ patriarchs = proc do
 end
 
 
-parser = Parser.new &patriarchs
+parser = Parser.new "log.log", &patriarchs
 
 # lazy parse of log
-e = parser.lazy_parse "log.log"
-e.lazy.select {|x| x[:gender] == "male"}.select { |x| x[:age].to_i > 150 }.to_a
-e.lazy.select { |x| x[:gender] == "male" }.select { |x| x[:spouse] =~ /leah/ }.to_a
-a = e.lazy.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }
+parser.lazy.select {|x| x[:gender] == "male"}.select { |x| x[:age].to_i > 150 }.to_a
+parser.lazy.select { |x| x[:gender] == "male" }.select { |x| x[:spouse] =~ /leah/ }.to_a
+a = parser.lazy.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }
 a.next
 
 # eager parse of log
-parser.parse("log.log") do |h|
+parser.each do |h|
 	puts h
 end
