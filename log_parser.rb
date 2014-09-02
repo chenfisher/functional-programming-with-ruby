@@ -63,10 +63,14 @@ end
 
 # usage
 patriarchs = proc do
-	field :name
-	field :age do |value|
-		value == "-" ? -1 : value
+	field :name do |value|
+		value.capitalize
 	end
+
+	field :age do |value|
+		value == "-" ? -1 : value.to_i
+	end
+
 	field :gender
 	field :spouse
 end
@@ -75,7 +79,7 @@ end
 parser = Parser.new "log.log", &patriarchs
 
 # lazy parse of log
-parser.lazy.select {|x| x[:gender] == "male"}.select { |x| x[:age].to_i > 150 }.to_a
+parser.lazy.select {|x| x[:gender] == "male"}.select { |x| x[:age] > 150 }.to_a
 parser.lazy.select { |x| x[:gender] == "male" }.select { |x| x[:spouse] =~ /leah/ }.to_a
 a = parser.lazy.select { |x| x[:gender] == "female" }.select { |x| x[:spouse] =~ /jacob/ }
 a.next
@@ -84,3 +88,5 @@ a.next
 parser.each do |h|
 	puts h
 end
+
+parser.close
