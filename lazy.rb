@@ -1,7 +1,7 @@
-fib = Enumerator.new do |y|
+fib = Enumerator.new do |yielder|
   a = b = 1
   loop do
-    y << a
+    yielder << a
     a, b = b, a + b
   end
 end
@@ -28,11 +28,3 @@ class Enumerator
 end
 
 fib.lazy_select { |x| x % 2 == 0 }.first(10)
-
-# another reason to use lazy:
-# source: http://www.sitepoint.com/functional-programming-techniques-with-ruby-part-iii/
-# this iterates twice on range
-(1..100).select { |x| x % 3 == 0 }.select { |x| x % 4 == 0 }
-
-# this iterates only once!
-(1..100).lazy.select { |x| x % 3 == 0 }.select { |x| x % 4 == 0 }
